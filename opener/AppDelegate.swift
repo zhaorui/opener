@@ -9,12 +9,15 @@ import Cocoa
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
-
+    private var utun_fd: Int32 = -1
+    private var utun_name = ""
+    
     @IBOutlet var window: NSWindow!
+    @IBOutlet var utun_label: NSTextField!
 
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Insert code here to initialize your application
+        precondition(getuid() == 0, "must run as root!")
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -23,6 +26,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
         return true
+    }
+    
+    // Mark: Actions
+    @IBAction func toggleUtun(sender: NSSwitch) {
+        if sender.state == .on {
+            (utun_fd, utun_name) = utun_open()
+            if utun_fd > 0 {
+                print("\(utun_name) is open.")
+                utun_label.stringValue = utun_name + ":"
+            } else {
+                print("failed to open utun.")
+                sender.state = .off
+            }
+        } else {
+            close(utun_fd)
+            print("\(utun_name) closed.")
+            utun_label.stringValue = "utunN:"
+        }
     }
 
     // MARK: - Core Data stack
