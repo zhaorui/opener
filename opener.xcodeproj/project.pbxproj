@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C591896E27381D7B00A5DF7B /* SGCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = C591896D27381D7B00A5DF7B /* SGCommand.swift */; };
 		C59C24072737CB4D0048EBE3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59C24062737CB4D0048EBE3 /* AppDelegate.swift */; };
 		C59C240A2737CB4D0048EBE3 /* opener.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C59C24082737CB4D0048EBE3 /* opener.xcdatamodeld */; };
 		C59C240C2737CB4F0048EBE3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C59C240B2737CB4F0048EBE3 /* Assets.xcassets */; };
@@ -15,6 +16,10 @@
 		C59C24242737CB4F0048EBE3 /* openerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59C24232737CB4F0048EBE3 /* openerUITests.swift */; };
 		C59C24262737CB4F0048EBE3 /* openerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59C24252737CB4F0048EBE3 /* openerUITestsLaunchTests.swift */; };
 		C59C24332737D4990048EBE3 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59C24322737D4990048EBE3 /* Helper.swift */; };
+		C5E0B956273A550200E2D77D /* SGUtun.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E0B955273A550200E2D77D /* SGUtun.swift */; };
+		C5E0B958273A753400E2D77D /* SGEther.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E0B957273A753400E2D77D /* SGEther.swift */; };
+		C5E0B95D273B5FC500E2D77D /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E0B95C273B5FC500E2D77D /* Extensions.swift */; };
+		C5E0B95F273B717D00E2D77D /* SGMacFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E0B95E273B717D00E2D77D /* SGMacFormatter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C591896D27381D7B00A5DF7B /* SGCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SGCommand.swift; sourceTree = "<group>"; };
 		C59C24032737CB4D0048EBE3 /* opener.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = opener.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C59C24062737CB4D0048EBE3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C59C24092737CB4D0048EBE3 /* opener.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = opener.xcdatamodel; sourceTree = "<group>"; };
@@ -47,6 +53,10 @@
 		C59C24232737CB4F0048EBE3 /* openerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = openerUITests.swift; sourceTree = "<group>"; };
 		C59C24252737CB4F0048EBE3 /* openerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = openerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		C59C24322737D4990048EBE3 /* Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
+		C5E0B955273A550200E2D77D /* SGUtun.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SGUtun.swift; sourceTree = "<group>"; };
+		C5E0B957273A753400E2D77D /* SGEther.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SGEther.swift; sourceTree = "<group>"; };
+		C5E0B95C273B5FC500E2D77D /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		C5E0B95E273B717D00E2D77D /* SGMacFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SGMacFormatter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,7 +108,12 @@
 			isa = PBXGroup;
 			children = (
 				C59C24322737D4990048EBE3 /* Helper.swift */,
+				C5E0B95C273B5FC500E2D77D /* Extensions.swift */,
+				C5E0B955273A550200E2D77D /* SGUtun.swift */,
+				C5E0B957273A753400E2D77D /* SGEther.swift */,
+				C5E0B95E273B717D00E2D77D /* SGMacFormatter.swift */,
 				C59C24062737CB4D0048EBE3 /* AppDelegate.swift */,
+				C591896D27381D7B00A5DF7B /* SGCommand.swift */,
 				C59C24362737D9420048EBE3 /* Resources */,
 			);
 			path = opener;
@@ -262,9 +277,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5E0B958273A753400E2D77D /* SGEther.swift in Sources */,
+				C5E0B956273A550200E2D77D /* SGUtun.swift in Sources */,
 				C59C240A2737CB4D0048EBE3 /* opener.xcdatamodeld in Sources */,
 				C59C24072737CB4D0048EBE3 /* AppDelegate.swift in Sources */,
 				C59C24332737D4990048EBE3 /* Helper.swift in Sources */,
+				C591896E27381D7B00A5DF7B /* SGCommand.swift in Sources */,
+				C5E0B95F273B717D00E2D77D /* SGMacFormatter.swift in Sources */,
+				C5E0B95D273B5FC500E2D77D /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

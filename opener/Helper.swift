@@ -63,3 +63,50 @@ func utun_open() -> (fd: Int32, utun: String) {
 
     return (-1, "")
 }
+
+
+/// 打开真实网卡并获取其文件描述符
+/// - Parameter interface: 指定的网络接口
+/// - Returns: 返回网口文件描述符用于读写数据包
+func if_open(interface: String) -> Int32 {
+    if (geteuid()) != 0 { print("No root, no service") }
+
+    guard !interface.isEmpty, interface.count < 17 else {
+        print("ll open error : No Interface Name Or too long")
+        return -1
+    }
+
+    let llfd = socket(PF_NDRV, SOCK_RAW, 0)
+    if llfd < 0 {
+        print("Can not create llfd : \(interface)")
+        return -1
+    }
+
+    // 初始化Ndrv地址，用于bind socket
+    var saNdrv = sockaddr_ndrv()
+    memset(&saNdrv, 0, MemoryLayout.size(ofValue: saNdrv))
+    withUnsafeMutablePointer(to: &saNdrv.snd_name) { pointer in
+        let bound = pointer.withMemoryRebound(to: UInt8.self, capacity: interface.count) { $0 }
+        interface.utf8.enumerated().forEach { (bound + $0.offset).pointee = $0.element }
+    }
+    saNdrv.snd_len = 18
+    saNdrv.snd_family = UInt8(PF_NDRV)
+
+    // 获取Ndrv Address指针，并将获取到的指针转换为socketAddress的指针用于传入bind函数
+    let saNdrvPtr = withUnsafePointer(to: &saNdrv, { $0 })
+    let saPtr = saNdrvPtr.withMemoryRebound(to: sockaddr.self, capacity: 18, { $0 })
+    let result = bind(llfd, saPtr, 18)
+    if result < 0 {
+        print("Bind llfd error : \(interface)")
+        return -1
+    }
+
+    // Connect
+    let result2 = connect(llfd, saPtr, 18)
+    if result2 < 0 {
+        print("Connect llfd error : \(interface)")
+        return -1
+    }
+
+    return llfd
+}

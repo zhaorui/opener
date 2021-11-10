@@ -9,11 +9,29 @@ import Cocoa
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
-    private var utun_fd: Int32 = -1
-    private var utun_name = ""
+    
+    private let utun = SGUtun()
+    private let ether = SGEther()
+    private let captureQueue = DispatchQueue(label: "com.opener.app.capture")
+    private let confURL = URL(fileURLWithPath: "/etc/pf.conf")
+    private let rules = ###"""
+    
+    # Rules Added by OPENER
+    set skip on utun8
+    pass out on en0 route-to utun8 inet all no state
+    
+    """###
+    
+    private var isCapturing: Bool {
+        get {
+            UserDefaults.standard.bool(forKey: "capturing")
+        }
+    }
     
     @IBOutlet var window: NSWindow!
     @IBOutlet var utun_label: NSTextField!
+    @IBOutlet var pf_text_view: NSTextView!
+    @IBOutlet var capture_switch: NSSwitch!
 
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -28,20 +46,75 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
     
+    // Mark: Privates
+    private func capture() {
+        captureQueue.async { [weak self] in
+            while self?.isCapturing == true {
+                self?.utun.readData { result in
+                    switch result {
+                    case .success(let data):
+                        self?.ether.writeData(data)
+                    case .failure(let error):
+                        print("read error:", error)
+                    }
+                }
+            }
+        }
+    }
+    
     // Mark: Actions
     @IBAction func toggleUtun(sender: NSSwitch) {
         if sender.state == .on {
-            (utun_fd, utun_name) = utun_open()
-            if utun_fd > 0 {
-                print("\(utun_name) is open.")
-                utun_label.stringValue = utun_name + ":"
-            } else {
-                print("failed to open utun.")
+            // open utun
+            var result = utun.open()
+            switch result {
+            case .success(_):
+                print("\(self.utun.name) is open.")
+                utun_label.stringValue = self.utun.name + ":"
+            case .failure(let error):
+                print("failed to open utun, \(error.code)")
                 sender.state = .off
+                return
             }
+            
+            // open en0
+            result = ether.open()
+            switch result {
+            case .success(_):
+                print("en0 is open")
+            case .failure(let error):
+                print("failed to open en0, \(error.code)")
+                sender.state = .off
+                return
+            }
+            
+            // enable PF rules
+            do {
+                var confData = try Data(contentsOf: confURL)
+                confData.append(rules.data(using: .utf8)!)
+                try confData.write(to: confURL)
+                SGCommand.run("pfctl -evf /etc/pf.conf")
+            } catch {
+                print("failed to enable PF, \(error)")
+            }
+            
+            capture()
         } else {
-            close(utun_fd)
-            print("\(utun_name) closed.")
+            // disable PF rules
+            do {
+                SGCommand.run("pfctl -d")
+                let confData = try Data(contentsOf: confURL)
+                let conf = String(data: confData, encoding: .utf8)
+                let conf2 = conf?.replacingOccurrences(of: rules, with: "")
+                try conf2?.write(to: confURL, atomically: true, encoding: .utf8)
+            } catch {
+                print("pf isn't disabled.")
+            }
+            
+            close(utun.fd)
+            print("\(utun.name) is closed.")
+            close(ether.fd)
+            print("\(ether.name) is closed.")
             utun_label.stringValue = "utunN:"
         }
     }
