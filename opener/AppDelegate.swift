@@ -18,9 +18,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private var rules = NSAttributedString(string: ###"""
         
         # Rules Added by OPENER
-        set skip on utun8
-        pass out on en0 route-to utun8 inet all no state
-        pass in  on en0 dup-to utun8 inet all no state
+        set skip on utun6
+        pass out on en1 route-to utun6 inet all no state
         
         """###, attributes: [.foregroundColor: NSColor.textColor])
     
@@ -113,9 +112,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             result = ether.open()
             switch result {
             case .success(_):
-                print("en0 is open")
+                print("\(ether.name) is open")
             case .failure(let error):
-                print("failed to open en0, \(error.code)")
+                print("failed to open \(ether.name), \(error.code)")
                 utun.close()
                 sender.state = .off
                 return

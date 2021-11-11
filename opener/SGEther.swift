@@ -31,7 +31,7 @@ class SGEther {
             .run("echo 'show State:/Network/Global/IPv4' | scutil | grep PrimaryService | cut -d: -f 2 | xargs")
             .stdoutData?.string(encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         
-        self.mac = SGCommand.run("ifconfig en0 | grep ether | cut -d' ' -f 2")
+        self.mac = SGCommand.run("ifconfig \(name) | grep ether | cut -d' ' -f 2")
             .stdoutData?.string(encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         
         self.router_mac = SGCommand
