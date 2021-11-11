@@ -59,6 +59,11 @@ class SGEther {
         }
     }
     
+    func close() {
+        Darwin.close(fd)
+        print("\(name) is closed.")
+    }
+    
     /// Assemble data from network layer with etherII frame header then send it to NDRV raw socket
     /// - Parameter data: data from network layer
     func writeData(_ data: Data) {

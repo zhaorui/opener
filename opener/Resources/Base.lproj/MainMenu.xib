@@ -721,6 +721,13 @@
                                     <size key="minSize" width="440" height="293"/>
                                     <size key="maxSize" width="440" height="10000000"/>
                                     <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <connections>
+                                        <binding destination="Voe-Tx-rLC" name="attributedString" keyPath="rules" id="QmC-kf-H4g">
+                                            <dictionary key="options">
+                                                <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                            </dictionary>
+                                        </binding>
+                                    </connections>
                                 </textView>
                             </subviews>
                         </clipView>

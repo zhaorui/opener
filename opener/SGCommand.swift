@@ -22,6 +22,8 @@ struct SGCommand {
         return String(data: data, encoding: .utf8) ?? ""
     }
     
+    var succeeded: Bool = false
+    
     private mutating func execute() {
         let process = Process()
         let pipe = Pipe()
@@ -40,6 +42,8 @@ struct SGCommand {
         
         self.stdoutData = stdout.readDataToEndOfFile()
         self.stderrData = stderr.readDataToEndOfFile()
+        self.succeeded = process.terminationStatus == 0
+        
     }
     
     @discardableResult

@@ -23,6 +23,11 @@ class SGUtun {
         }
     }
     
+    func `close`() {
+        Darwin.close(fd)
+        print("\(name) is closed.")
+    }
+    
     func readData(completion: (Result<Data, Error>) -> Void) {
         let ptr = UnsafeMutableRawPointer.allocate(byteCount: 4096, alignment: 1)
         let nbytes = read(self.fd, ptr, 4096)

@@ -14,13 +14,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private let ether = SGEther()
     private let captureQueue = DispatchQueue(label: "com.opener.app.capture")
     private let confURL = URL(fileURLWithPath: "/etc/pf.conf")
-    private let rules = ###"""
     
-    # Rules Added by OPENER
-    set skip on utun8
-    pass out on en0 route-to utun8 inet all no state
-    
-    """###
+    @objc private var rules = NSAttributedString(string: ###"""
+        
+        # Rules Added by OPENER
+        set skip on utun8
+        pass out on en0 route-to utun8 inet all no state
+        pass in  on en0 dup-to utun8 inet all no state
+        
+        """###, attributes: [.foregroundColor: NSColor.textColor])
     
     private var isCapturing: Bool {
         get {
@@ -62,6 +64,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
+    private func showAlert(title: String, info: String) {
+        let alert = NSAlert()
+        alert.messageText = title
+        alert.informativeText = info
+        alert.beginSheetModal(for: self.window) { response in
+            print(response)
+        }
+    }
+    
+    private func parse() -> Bool {
+        do {
+            let origin = try Data(contentsOf: confURL)
+            var confData = origin
+            confData.append(rules.string.data(using: .utf8)!)
+            try confData.write(to: confURL)
+            let cmd = SGCommand.run("pfctl -n -f /etc/pf.conf")
+            
+            if !cmd.succeeded {
+                let reason = cmd.stderrData?.string(encoding: .utf8)
+                showAlert(title: "PF rules invalid", info: reason ?? "unknown")
+                try origin.write(to: confURL, options: .atomic)
+                return false
+            }
+        } catch  {
+            return false
+        }
+        
+        return true
+    }
+    
     // Mark: Actions
     @IBAction func toggleUtun(sender: NSSwitch) {
         if sender.state == .on {
@@ -84,18 +116,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 print("en0 is open")
             case .failure(let error):
                 print("failed to open en0, \(error.code)")
+                utun.close()
                 sender.state = .off
                 return
             }
             
-            // enable PF rules
-            do {
-                var confData = try Data(contentsOf: confURL)
-                confData.append(rules.data(using: .utf8)!)
-                try confData.write(to: confURL)
+            if parse() {
+                // enable PF rules
                 SGCommand.run("pfctl -evf /etc/pf.conf")
-            } catch {
-                print("failed to enable PF, \(error)")
+            } else {
+                // PF rules invalid
+                utun.close()
+                ether.close()
+                sender.state = .off
+                return
             }
             
             capture()
@@ -103,18 +137,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // disable PF rules
             do {
                 SGCommand.run("pfctl -d")
+                SGCommand.run("pfctl -F rules")
                 let confData = try Data(contentsOf: confURL)
                 let conf = String(data: confData, encoding: .utf8)
-                let conf2 = conf?.replacingOccurrences(of: rules, with: "")
+                let conf2 = conf?.replacingOccurrences(of: rules.string, with: "")
                 try conf2?.write(to: confURL, atomically: true, encoding: .utf8)
             } catch {
                 print("pf isn't disabled.")
+                return
             }
             
-            close(utun.fd)
-            print("\(utun.name) is closed.")
-            close(ether.fd)
-            print("\(ether.name) is closed.")
+            utun.close()
+            ether.close()
             utun_label.stringValue = "utunN:"
         }
     }
