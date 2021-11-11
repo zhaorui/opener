@@ -15,13 +15,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private let captureQueue = DispatchQueue(label: "com.opener.app.capture")
     private let confURL = URL(fileURLWithPath: "/etc/pf.conf")
     
-    @objc private var rules = NSAttributedString(string: ###"""
-        
-        # Rules Added by OPENER
-        set skip on utun6
-        pass out on en1 route-to utun6 inet all no state
-        
-        """###, attributes: [.foregroundColor: NSColor.textColor])
+    @objc private var rules = NSAttributedString(string: "") {
+        didSet {
+            self.pf_text_view.textStorage?.setAttributedString(rules)
+        }
+    }
     
     private var isCapturing: Bool {
         get {
@@ -30,13 +28,44 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @IBOutlet var window: NSWindow!
-    @IBOutlet var utun_label: NSTextField!
     @IBOutlet var pf_text_view: NSTextView!
     @IBOutlet var capture_switch: NSSwitch!
 
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         precondition(getuid() == 0, "must run as root!")
+        
+        // open utun
+        var result = utun.open()
+        switch result {
+        case .success(_):
+            print("\(self.utun.name) is open.")
+        case .failure(let error):
+            print("failed to open utun, \(error.code)")
+            capture_switch.isEnabled = false
+            return
+        }
+        
+        // open en0
+        result = ether.open()
+        switch result {
+        case .success(_):
+            print("\(ether.name) is open")
+        case .failure(let error):
+            print("failed to open \(ether.name), \(error.code)")
+            utun.close()
+            capture_switch.isEnabled = false
+            return
+        }
+        
+        // setup pf rules
+        rules = NSAttributedString(string: """
+        
+        # Rules Added by OPENER
+        set skip on \(utun.name)
+        pass out on \(ether.name) route-to \(utun.name) inet all no state
+        
+        """, attributes: [.foregroundColor: NSColor.textColor])
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -96,30 +125,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Mark: Actions
     @IBAction func toggleUtun(sender: NSSwitch) {
         if sender.state == .on {
-            // open utun
-            var result = utun.open()
-            switch result {
-            case .success(_):
-                print("\(self.utun.name) is open.")
-                utun_label.stringValue = self.utun.name + ":"
-            case .failure(let error):
-                print("failed to open utun, \(error.code)")
-                sender.state = .off
-                return
-            }
-            
-            // open en0
-            result = ether.open()
-            switch result {
-            case .success(_):
-                print("\(ether.name) is open")
-            case .failure(let error):
-                print("failed to open \(ether.name), \(error.code)")
-                utun.close()
-                sender.state = .off
-                return
-            }
-            
             if parse() {
                 // enable PF rules
                 SGCommand.run("pfctl -evf /etc/pf.conf")
@@ -148,7 +153,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             utun.close()
             ether.close()
-            utun_label.stringValue = "utunN:"
         }
     }
 

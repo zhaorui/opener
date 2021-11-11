@@ -16,7 +16,6 @@
             <connections>
                 <outlet property="capture_switch" destination="GC9-ae-6Zb" id="8Hq-ZR-9Lc"/>
                 <outlet property="pf_text_view" destination="QgY-4r-5BK" id="4EM-OA-09z"/>
-                <outlet property="utun_label" destination="Scg-QM-p2V" id="RCq-hg-j3v"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
             </connections>
         </customObject>
@@ -687,21 +686,21 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="335" y="390" width="480" height="360"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1025"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1055"/>
             <view key="contentView" id="EiT-Mj-1SZ">
                 <rect key="frame" x="0.0" y="0.0" width="480" height="360"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Scg-QM-p2V">
-                        <rect key="frame" x="18" y="324" width="49" height="16"/>
-                        <textFieldCell key="cell" lineBreakMode="clipping" title="utunN: " id="ZXf-HK-6JM">
+                        <rect key="frame" x="18" y="324" width="66" height="16"/>
+                        <textFieldCell key="cell" lineBreakMode="clipping" title="capturing:" id="ZXf-HK-6JM">
                             <font key="font" usesAppearanceFont="YES"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
                     <switch horizontalHuggingPriority="750" verticalHuggingPriority="750" baseWritingDirection="leftToRight" alignment="left" translatesAutoresizingMaskIntoConstraints="NO" id="GC9-ae-6Zb">
-                        <rect key="frame" x="71" y="319" width="42" height="25"/>
+                        <rect key="frame" x="88" y="319" width="42" height="25"/>
                         <connections>
                             <action selector="toggleUtunWithSender:" target="Voe-Tx-rLC" id="AnV-UR-S7O"/>
                             <binding destination="T0v-63-3eS" name="value" keyPath="values.capturing" id="za3-pF-3kn"/>
@@ -710,15 +709,15 @@
                     <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Wl-d1-wLR">
                         <rect key="frame" x="20" y="20" width="440" height="293"/>
                         <clipView key="contentView" drawsBackground="NO" id="qWK-m1-xGo">
-                            <rect key="frame" x="0.0" y="0.0" width="440" height="293"/>
+                            <rect key="frame" x="0.0" y="0.0" width="425" height="293"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="QgY-4r-5BK">
-                                    <rect key="frame" x="0.0" y="0.0" width="440" height="293"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="425" height="293"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                    <size key="minSize" width="440" height="293"/>
+                                    <size key="minSize" width="425" height="293"/>
                                     <size key="maxSize" width="440" height="10000000"/>
                                     <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <connections>
@@ -736,7 +735,7 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="x9H-7p-AMH">
-                            <rect key="frame" x="424" y="0.0" width="16" height="293"/>
+                            <rect key="frame" x="425" y="0.0" width="15" height="293"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
