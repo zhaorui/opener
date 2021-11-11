@@ -6,5 +6,8 @@ packets back to en0 via the NDRV raw socket. It also capture packet passed in, a
 
 ## PF rules
 set skip on utun6
+
 pass out on en1 route-to utun6 inet all no state
+
 pass in  on en1 dup-to utun6 inet all no state
+
