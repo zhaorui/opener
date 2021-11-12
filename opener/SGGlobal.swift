@@ -25,3 +25,5 @@ class SGPacketsBuffer {
         return packet
     }
 }
+
+let SGAtomicQueue = DispatchQueue(label: "com.opener.app.atomic")

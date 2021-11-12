@@ -33,7 +33,7 @@ class SGUtun {
         isOpen = false
     }
     
-    func readData(completion: @escaping (Result<Data, Error>) -> Void) {
+    func readData(completion: @escaping (Result<Data, POSIXError>) -> Void) {
         let ptr = UnsafeMutableRawPointer.allocate(byteCount: 4096, alignment: 1)
         let nbytes = read(self.fd, ptr, 4096)
         if nbytes > 0 {

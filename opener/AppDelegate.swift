@@ -15,15 +15,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private let captureQueue = DispatchQueue(label: "com.opener.app.capture")
     private let confURL = URL(fileURLWithPath: "/etc/pf.conf")
     
-    @objc private var rules = NSAttributedString(string: "") {
-        didSet {
-            self.pf_text_view.textStorage?.setAttributedString(rules)
-        }
-    }
+    @objc private var rules = NSAttributedString(string: "")
     
     private var isCapturing: Bool {
         get {
-            UserDefaults.standard.bool(forKey: "capturing")
+            var value = false
+            SGAtomicQueue.sync {
+                value = UserDefaults.standard.bool(forKey: "capturing")
+            }
+            return value
+        }
+        
+        set {
+            SGAtomicQueue.sync {
+                UserDefaults.standard.setValue(newValue, forKey: "capturing")
+            }
         }
     }
     
@@ -39,7 +45,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard openUtunAndEther() else { return }
         
         // setup pf rules
-        rules = NSAttributedString(string: """
+        let defaultRules = NSAttributedString(string: """
         
         # Rules Added by OPENER
         set skip on \(utun.name)
@@ -47,17 +53,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         pass in  on \(ether.name) dup-to \(utun.name) inet all no state
         
         """, attributes: [.foregroundColor: NSColor.textColor])
+        
+        rules = defaultRules
+        pf_text_view.textStorage?.setAttributedString(defaultRules)
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
-        // Insert code here to tear down your application
+        if isCapturing {
+            disable()
+        }
+        isCapturing = false
     }
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
         return true
     }
     
-    // Mark: Privates
+    // MARK: - Privates
     private func openUtunAndEther() -> Bool {
         var result: Result<Void, POSIXError>?
         // open utun
@@ -98,7 +110,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     case .success(let data):
                         self?.ether.writeData(data)
                     case .failure(let error):
-                        print("read error:", error)
+                        print("read error:", error.code.rawValue)
+                        if error.code != .EAGAIN {
+                            self?.isCapturing = false
+                        }
                     }
                 }
             }
@@ -114,6 +129,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
+    /// parse pf statements in /etc/pf.conf
+    /// - Returns: parse result
     private func parse() -> Bool {
         do {
             let origin = try Data(contentsOf: confURL)
@@ -135,39 +152,56 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
     
-    // Mark: Actions
-    @IBAction func toggleUtun(sender: NSSwitch) {
-        if sender.state == .on {
-            guard openUtunAndEther() else { return }
-            
-            if parse() {
-                // enable PF rules
-                SGCommand.run("pfctl -evf /etc/pf.conf")
-            } else {
-                // PF rules invalid
-                utun.close()
-                ether.close()
-                sender.state = .off
-                return
-            }
-            
-            capture()
+    private func enable() throws {
+        guard openUtunAndEther() else { throw "failed to open interface while enabling" }
+        
+        if parse() {
+            // enable PF rules
+            SGCommand.run("pfctl -evf /etc/pf.conf")
         } else {
-            // disable PF rules
-            do {
-                SGCommand.run("pfctl -d")
-                SGCommand.run("pfctl -F rules")
-                let confData = try Data(contentsOf: confURL)
-                let conf = String(data: confData, encoding: .utf8)
-                let conf2 = conf?.replacingOccurrences(of: rules.string, with: "")
-                try conf2?.write(to: confURL, atomically: true, encoding: .utf8)
-            } catch {
-                print("pf isn't disabled.")
-                return
-            }
-            
+            // PF rules invalid
             utun.close()
             ether.close()
+            capture_switch.state = .off
+            throw "failed to enable as pf rules are invalid"
+        }
+        
+        capture()
+    }
+    
+    private func disable() {
+        // disable PF rules
+        do {
+            SGCommand.run("pfctl -d")
+            SGCommand.run("pfctl -F rules")
+            let confData = try Data(contentsOf: confURL)
+            let conf = String(data: confData, encoding: .utf8)
+            let conf2 = conf?.replacingOccurrences(of: rules.string, with: "")
+            try conf2?.write(to: confURL, atomically: true, encoding: .utf8)
+        } catch {
+            print("ERROR: pf isn't disabled!")
+            return
+        }
+        
+        if utun.isOpen {
+            utun.close()
+        }
+        
+        if ether.isOpen {
+            ether.close()
+        }
+    }
+    
+    // MARK: - Actions
+    @IBAction func toggleUtun(sender: NSSwitch) {
+        do {
+            if sender.state == .on {
+                try enable()
+            } else {
+                disable()
+            }
+        } catch {
+            print(error)
         }
     }
 
