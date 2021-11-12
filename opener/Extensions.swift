@@ -15,6 +15,10 @@ extension Data {
     func hexEncodedString(separator sep: String = "") -> String {
         return map { String(format: "%02hhx", $0) }.joined(separator: sep)
     }
+    
+    func decimalEncodedString(separator sep: String = "") -> String {
+        return map { String(format: "%d", $0) }.joined(separator: sep)
+    }
 }
 
 extension String: Error {}

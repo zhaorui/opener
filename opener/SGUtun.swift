@@ -33,7 +33,8 @@ class SGUtun {
         let nbytes = read(self.fd, ptr, 4096)
         if nbytes > 0 {
             // packet captured from utun is loopback frame which link layer header is a 4-byte field
-            let packet = Data(bytes: ptr, count: nbytes).dropFirst(4)
+            var packet = Data(bytes: ptr, count: nbytes)
+            packet.removeSubrange(0..<4)
             completion(.success(packet))
         } else if nbytes == 0 {
             completion(.success(Data()))

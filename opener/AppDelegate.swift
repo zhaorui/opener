@@ -64,6 +64,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         # Rules Added by OPENER
         set skip on \(utun.name)
         pass out on \(ether.name) route-to \(utun.name) inet all no state
+        pass in  on \(ether.name) dup-to \(utun.name) inet all no state
         
         """, attributes: [.foregroundColor: NSColor.textColor])
     }

@@ -17,6 +17,8 @@ enum EtherType {
 class SGEther {
     var fd: Int32 = -1
     var name: String
+    var ip: String
+    var ipData: Data
     var mac: String
     var router_mac: String
     private var servid: String
@@ -31,6 +33,12 @@ class SGEther {
             .run("echo 'show State:/Network/Global/IPv4' | scutil | grep PrimaryService | cut -d: -f 2 | xargs")
             .stdoutData?.string(encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         
+        self.ip = SGCommand.run("ifconfig \(name) | grep 'inet ' | cut -d' ' -f 2")
+            .stdoutData?.string(encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        
+        let ipfmt = SGIPFormatter()
+        self.ipData = ipfmt.data(from: ip) ?? Data()
+        
         self.mac = SGCommand.run("ifconfig \(name) | grep ether | cut -d' ' -f 2")
             .stdoutData?.string(encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         
@@ -38,7 +46,7 @@ class SGEther {
             .run("echo 'show State:/Network/Service/\(servid)/IPv4' | scutil | grep ARPResolvedHardwareAddress | awk '{print $3}'")
             .stdoutData?.string(encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         
-        let formatter = SGMacFormatter()
+        let formatter = SGMACFormatter()
         let dst = formatter.data(from: router_mac) ?? Data()
         let src = formatter.data(from: mac) ?? Data()
         self.header = dst + src + EtherType.ipv4
@@ -67,6 +75,9 @@ class SGEther {
     /// Assemble data from network layer with etherII frame header then send it to NDRV raw socket
     /// - Parameter data: data from network layer
     func writeData(_ data: Data) {
+        let srcIP = data[12...15]
+        guard srcIP == ipData else { return } // only redirect out packet
+        
         let frame = header + data
         var written = 0
         while written < data.count {
