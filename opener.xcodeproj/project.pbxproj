@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2A841E10273D32E400C92F80 /* SGIPFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A841E0F273D32E400C92F80 /* SGIPFormatter.swift */; };
+		2A99E839273E573600BCAC8B /* SGGlobal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A99E838273E573600BCAC8B /* SGGlobal.swift */; };
 		C591896E27381D7B00A5DF7B /* SGCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = C591896D27381D7B00A5DF7B /* SGCommand.swift */; };
 		C59C24072737CB4D0048EBE3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59C24062737CB4D0048EBE3 /* AppDelegate.swift */; };
 		C59C240A2737CB4D0048EBE3 /* opener.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C59C24082737CB4D0048EBE3 /* opener.xcdatamodeld */; };
@@ -42,6 +43,7 @@
 
 /* Begin PBXFileReference section */
 		2A841E0F273D32E400C92F80 /* SGIPFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SGIPFormatter.swift; sourceTree = "<group>"; };
+		2A99E838273E573600BCAC8B /* SGGlobal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SGGlobal.swift; sourceTree = "<group>"; };
 		C591896D27381D7B00A5DF7B /* SGCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SGCommand.swift; sourceTree = "<group>"; };
 		C59C24032737CB4D0048EBE3 /* opener.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = opener.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C59C24062737CB4D0048EBE3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 				C5E0B95C273B5FC500E2D77D /* Extensions.swift */,
 				C5E0B955273A550200E2D77D /* SGUtun.swift */,
 				C5E0B957273A753400E2D77D /* SGEther.swift */,
+				2A99E838273E573600BCAC8B /* SGGlobal.swift */,
 				C5E0B95E273B717D00E2D77D /* SGMACFormatter.swift */,
 				2A841E0F273D32E400C92F80 /* SGIPFormatter.swift */,
 				C59C24062737CB4D0048EBE3 /* AppDelegate.swift */,
@@ -280,6 +283,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A99E839273E573600BCAC8B /* SGGlobal.swift in Sources */,
 				2A841E10273D32E400C92F80 /* SGIPFormatter.swift in Sources */,
 				C5E0B958273A753400E2D77D /* SGEther.swift in Sources */,
 				C5E0B956273A550200E2D77D /* SGUtun.swift in Sources */,

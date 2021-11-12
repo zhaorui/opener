@@ -16,6 +16,7 @@ enum EtherType {
 /// A network service which able to send raw packets on link-layer
 class SGEther {
     var fd: Int32 = -1
+    var isOpen = false
     var name: String
     var ip: String
     var ipData: Data
@@ -56,13 +57,18 @@ class SGEther {
     /// - Returns: result of opening a NDRV raw socket
     func `open`() -> Result<Void, POSIXError> {
         // size of EtherII frame header should be 14 (6 bytes dst + 6 bytes src + 2 bytes type)
-        guard self.header.count == 14 else { return .failure(.init(.ENOTSUP)) }
+        guard self.header.count == 14 else {
+            isOpen = false
+            return .failure(.init(.ENOTSUP))
+        }
         
         fd = if_open(interface: name)
         if fd > 0 {
+            isOpen = true
             return .success(())
         } else {
             let code = POSIXErrorCode(rawValue: errno)!
+            isOpen = false
             return .failure(.init(code))
         }
     }
@@ -70,6 +76,7 @@ class SGEther {
     func close() {
         Darwin.close(fd)
         print("\(name) is closed.")
+        isOpen = false
     }
     
     /// Assemble data from network layer with etherII frame header then send it to NDRV raw socket

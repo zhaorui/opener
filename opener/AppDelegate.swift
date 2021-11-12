@@ -35,28 +35,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         precondition(getuid() == 0, "must run as root!")
         
-        // open utun
-        var result = utun.open()
-        switch result {
-        case .success(_):
-            print("\(self.utun.name) is open.")
-        case .failure(let error):
-            print("failed to open utun, \(error.code)")
-            capture_switch.isEnabled = false
-            return
-        }
-        
-        // open en0
-        result = ether.open()
-        switch result {
-        case .success(_):
-            print("\(ether.name) is open")
-        case .failure(let error):
-            print("failed to open \(ether.name), \(error.code)")
-            utun.close()
-            capture_switch.isEnabled = false
-            return
-        }
+        // open utun & ether interface
+        guard openUtunAndEther() else { return }
         
         // setup pf rules
         rules = NSAttributedString(string: """
@@ -78,6 +58,38 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // Mark: Privates
+    private func openUtunAndEther() -> Bool {
+        var result: Result<Void, POSIXError>?
+        // open utun
+        if !utun.isOpen {
+            result = utun.open()
+            switch result! {
+            case .success(_):
+                print("\(self.utun.name) is open.")
+            case .failure(let error):
+                print("failed to open utun, \(error.code)")
+                capture_switch.isEnabled = false
+                return false
+            }
+        }
+        
+        // open en0
+        if !ether.isOpen {
+            result = ether.open()
+            switch result! {
+            case .success(_):
+                print("\(ether.name) is open")
+            case .failure(let error):
+                print("failed to open \(ether.name), \(error.code)")
+                utun.close()
+                capture_switch.isEnabled = false
+                return false
+            }
+        }
+        
+        return true
+    }
+    
     private func capture() {
         captureQueue.async { [weak self] in
             while self?.isCapturing == true {
@@ -126,6 +138,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Mark: Actions
     @IBAction func toggleUtun(sender: NSSwitch) {
         if sender.state == .on {
+            guard openUtunAndEther() else { return }
+            
             if parse() {
                 // enable PF rules
                 SGCommand.run("pfctl -evf /etc/pf.conf")
