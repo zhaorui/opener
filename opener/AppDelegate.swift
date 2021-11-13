@@ -104,18 +104,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func capture() {
         captureQueue.async { [weak self] in
-            while self?.isCapturing == true {
-                self?.utun.readData { result in
-                    switch result {
-                    case .success(let data):
-                        self?.ether.writeData(data)
-                    case .failure(let error):
-                        print("read error:", error.code.rawValue)
-                        if error.code != .EAGAIN {
-                            self?.isCapturing = false
-                        }
-                    }
-                }
+            var error: POSIXError?
+            while self?.isCapturing == true, (error == nil || error!.code == .EAGAIN )  {
+                error = self?.utun.readData(completion: { data in
+                    self?.ether.writeData(data)
+                })
             }
         }
     }

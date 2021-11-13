@@ -33,20 +33,23 @@ class SGUtun {
         isOpen = false
     }
     
-    func readData(completion: @escaping (Result<Data, POSIXError>) -> Void) {
+    func readData(completion: @escaping (Data) -> Void) -> POSIXError? {
         let ptr = UnsafeMutableRawPointer.allocate(byteCount: 4096, alignment: 1)
         let nbytes = read(self.fd, ptr, 4096)
         if nbytes > 0 {
             // packet captured from utun is loopback frame which link layer header is a 4-byte field
             var packet = Data(bytes: ptr, count: nbytes)
             packet.removeSubrange(0..<4)
-            completionQueue.async { completion(.success(packet)) }
+            completionQueue.async { completion(packet) }
         } else if nbytes == 0 {
-            completionQueue.async { completion(.success(Data())) }
+            print("Warning: read null bytes from utun!")
+            completionQueue.async { completion(Data()) }
         } else {
             let code = POSIXErrorCode(rawValue: errno)!
             let error = POSIXError(code)
-            completionQueue.async { completion(.failure(error)) }
+            //completionQueue.async { completion(.failure(error)) }
+            return error
         }
+        return nil
     }
 }
