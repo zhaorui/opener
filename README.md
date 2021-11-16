@@ -26,7 +26,8 @@ I have send a request "FB9752918" to Apple, hopes they'll take a look.
 1. click the capture switch to capture all packets to utun
 1. send an screenshot of your desktop or some reugular file to your contacts via IM
 
-**Method 2**
+**Method 2** 
+
 Open a process in the public cloud service to receive packets
 >  nc  -l -p 1234 > file
 
