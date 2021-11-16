@@ -23,8 +23,8 @@ I have send a request "FB9752918" to Apple, hopes they'll take a look.
 ### How to reproduce this bug?  
 
 **Method 1**
-1. click the capture switch to capture all packets to utun
-1. send an screenshot of your desktop or some reugular file to your contacts via IM
+1. Click the switch to capture all packets to utun
+1. Send a screenshot of your desktop or some regular file to your contacts via IM (Skype, DingTalk, etc.)
 
 **Method 2** 
 
