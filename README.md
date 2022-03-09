@@ -33,3 +33,15 @@ Open a process in the public cloud service to receive packets
 
 Then, send a file to the cloud service
 > nc {Server IP} 1234 < SAC.app.zip
+
+### How to solve this problem?
+Since macOS 12.0 net.inet.tcp.tso so called TCP segment offlad feature take effect.
+This setting is set to 1 by default, so en1 would route big packet to utun6 directly.
+and when we send the packet back to en0 with raw socket, it simply drops it.
+
+The resolution is quite simple, before diverting disable `net.inet.tcp.tso` with command.
+
+```
+sysctl net.inet.tcp.tso=0
+```
+
