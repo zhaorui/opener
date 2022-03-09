@@ -150,6 +150,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         if parse() {
             // enable PF rules
+            SGCommand.run("/usr/sbin/sysctl net.inet.tcp.tso=0")
             SGCommand.run("pfctl -evf /etc/pf.conf")
         } else {
             // PF rules invalid
@@ -163,6 +164,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func disable() {
+        // reset tso
+        SGCommand.run("/usr/sbin/sysctl net.inet.tcp.tso=1")
+        
         // disable PF rules
         do {
             SGCommand.run("pfctl -d")
